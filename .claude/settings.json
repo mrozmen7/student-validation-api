@@ -1,0 +1,21 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash hooks/pre-commit-verify.sh",
+            "conditions": [
+              {
+                "field": "input.command",
+                "contains": "git commit"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
