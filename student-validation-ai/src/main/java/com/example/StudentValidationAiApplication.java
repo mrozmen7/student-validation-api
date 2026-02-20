@@ -8,7 +8,6 @@ public class StudentValidationAiApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(StudentValidationAiApplication.class, args);
-		asdf
 	}
 
 }

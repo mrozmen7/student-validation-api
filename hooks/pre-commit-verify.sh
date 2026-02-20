@@ -6,7 +6,10 @@
 set -euo pipefail
 
 # Move into the Maven module where pom.xml resides.
-cd "$(dirname "$0")/../student-validation-ai"
+# Resolve the real script location (follows symlinks) so the path is correct
+# regardless of whether this script is called directly or via .git/hooks/.
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+cd "$SCRIPT_DIR/../student-validation-ai"
 
 echo "[pre-commit] Running tests in $(pwd) ..."
 
