@@ -2,7 +2,7 @@ spring:
   application:
     name: student-validation-ai
   datasource:
-    url: jdbc:postgresql://localhost:5432/student_validation
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=student_validation
     username: postgres
     password: 3014
     driver-class-name: org.postgresql.Driver
