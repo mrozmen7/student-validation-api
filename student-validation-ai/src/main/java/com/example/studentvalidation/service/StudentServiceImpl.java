@@ -59,7 +59,7 @@ public class StudentServiceImpl implements StudentService {
         checkEmailUniqueForUpdate(request.getEmail(), id);
         checkTcknUniqueForUpdate(request.getTckn(), id);
 
-        studentMapper.updateEntity(student, request);
+        studentMapper.updateEntity(request, student);
         return studentMapper.toResponse(studentRepository.save(student));
     }
 
