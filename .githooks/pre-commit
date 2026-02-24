@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# .githooks/pre-commit — Delegates to the tracked test runner script.
+# Enable with: git config core.hooksPath .githooks
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+exec "$REPO_ROOT/hooks/pre-commit-verify.sh"

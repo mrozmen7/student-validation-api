@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "1.0",
+  "name": "student-validation-backend",
+  "version": "1.0.0",
+  "description": "Spring Boot 4.x / Java 21 development plugin for the student-validation-api repo.",
+  "commands": [
+    {
+      "name": "write-service",
+      "description": "Generate a Spring Boot service skeleton (interface + impl, constructor injection, validation, exceptions).",
+      "source": "commands/write-service.md"
+    },
+    {
+      "name": "write-integration-test",
+      "description": "Generate a @DataJpaTest + Testcontainers PostgreSQL repository test template.",
+      "source": "commands/write-integration-test.md"
+    }
+  ],
+  "agents": [
+    {
+      "name": "CodeReviewer",
+      "description": "Reviews code for Clean Architecture, SOLID, DTO/Entity separation, MapStruct usage, and test quality.",
+      "source": "agents/code-reviewer.md"
+    }
+  ],
+  "hooks": [
+    {
+      "event": "pre-commit",
+      "description": "Run ./mvnw test and block commit on failure.",
+      "source": "../../.githooks/pre-commit"
+    }
+  ]
+}
