@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0",
+  "plugins": [
+    {
+      "name": "student-validation-backend",
+      "version": "1.0.0",
+      "description": "Standardizes Spring Boot 4.x development workflow: service skeletons, integration test templates, code review, and pre-commit gate.",
+      "manifest": "plugins/student-validation-backend/plugin.json"
+    }
+  ]
+}

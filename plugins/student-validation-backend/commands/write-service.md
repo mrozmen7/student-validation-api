@@ -1,38 +1,19 @@
-Generate a Spring Boot 4.x service following the project's layered architecture.
+Generate a Spring Boot service layer for entity `$ARGUMENTS`. All conventions are in CLAUDE.md — follow them exactly.
 
-## Instructions
+## Output
 
-Read `CLAUDE.md` first to confirm conventions, then generate the following for the entity named **$ARGUMENTS**:
+Two files under `src/main/java/com/example/studentvalidation/service/`:
 
-### 1. Service interface — `service/$ARGUMENTSService.java`
+**`<Name>Service.java`** — interface with: `create`, `findAll`, `findById`, `update`, `delete`.
 
-```
-package com.example.studentvalidation.service;
+**`<Name>ServiceImpl.java`** — implementation rules:
+- `@Service @Transactional @RequiredArgsConstructor` (class level)
+- `@Transactional(readOnly = true)` on `findAll` and `findById`
+- Constructor injection only
+- Uniqueness: `existsBy*` → `BusinessRuleException` (before any save)
+- Not found: `orElseThrow(<Name>NotFoundException::new)`
+- All conversions via MapStruct mapper (`toEntity`, `updateEntity`)
 
-public interface <Name>Service {
-    <Response> create(<Request> request);
-    List<<Response>> findAll();
-    <Response> findById(Long id);
-    <Response> update(Long id, <Request> request);
-    void delete(Long id);
-}
-```
+Scope: service layer only. Do not generate controller, repository, entity, or mapper.
 
-### 2. Service implementation — `service/<Name>ServiceImpl.java`
-
-Rules:
-- `@Service @Transactional` at class level.
-- `@Transactional(readOnly = true)` on `findAll` and `findById`.
-- Constructor injection only — no `@Autowired` fields.
-- Business validation before any persistence call:
-  - Duplicate checks via `existsBy*` repository methods → throw `BusinessRuleException`.
-  - Age / domain rules → throw `BusinessRuleException`.
-- `findById` wraps `repository.findById(...).orElseThrow(EntityNotFoundException::new)`.
-- All write paths go through the MapStruct mapper (`toEntity`, `updateEntity`).
-
-### Output rules
-- Follow the exact package structure in `CLAUDE.md`.
-- Use Lombok `@RequiredArgsConstructor` on the impl class.
-- Do not add comments unless logic is non-obvious.
-- Do not generate the controller, repository, or entity — service layer only.
-- After generating, confirm: "Service skeleton written. Run `./mvnw -DskipTests compile` to verify."
+Confirm with: `./mvnw -DskipTests compile`

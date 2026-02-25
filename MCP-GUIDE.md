@@ -1,50 +1,50 @@
-# MCP Configuration Guide
+# MCP Mode Guide
 
-Three purpose-built MCP configs live under `.mcp/`. Pick the one that matches your task.
+Shared MCP configs live under `.mcp/`. Start Claude with the mode that matches your task.
+`--strict-mcp-config` disables every server not listed in the chosen file.
 
 ---
 
 ## Modes
 
-### CODING — `.mcp/coding.json`
-**Use for:** daily development — CRUD, service logic, validation, tests, refactoring.
+| Mode | Config | Servers | Use when |
+|------|--------|---------|----------|
+| CODING | `.mcp/coding.json` | Context7 | Daily dev — CRUD, service, validation, refactoring |
+| TESTING | `.mcp/testing.json` | Context7 | Writing or debugging tests, Testcontainers setup |
+| RESEARCH | `.mcp/research.json` | Context7 + Tavily | Architecture decisions, tech comparison, external search |
+| BROWSER | `.mcp/browser.json` | Playwright | UI verification, scraping, browser automation |
 
-Servers: Context7 (live library docs)
+---
+
+## Commands
 
 ```bash
+# CODING
 claude --mcp-config .mcp/coding.json --strict-mcp-config
-```
 
----
+# TESTING
+claude --mcp-config .mcp/testing.json --strict-mcp-config
 
-### RESEARCH — `.mcp/research.json`
-**Use for:** architecture decisions, comparing technologies, searching external resources.
-
-Servers: Context7 + Tavily (web search)
-
-> **Setup:** Replace `YOUR_TAVILY_API_KEY_HERE` in `.mcp/research.json` with your Tavily API key.
-
-```bash
+# RESEARCH
 claude --mcp-config .mcp/research.json --strict-mcp-config
-```
 
----
-
-### BROWSER — `.mcp/browser.json`
-**Use for:** UI verification, scraping, end-to-end browser automation.
-
-Servers: Playwright
-
-> **Setup:** Requires Node.js. `npx @playwright/mcp@latest` is fetched automatically on first run.
-
-```bash
+# BROWSER
 claude --mcp-config .mcp/browser.json --strict-mcp-config
 ```
 
 ---
 
-## Notes
+## Setup notes
 
-- `--strict-mcp-config` disables all servers not listed in the chosen config.
-- The root `.mcp.json` (if present) is your personal local default — it is git-ignored.
-- All `.mcp/*.json` configs are committed and shared across the team.
+**Tavily** (`RESEARCH`): replace `YOUR_TAVILY_API_KEY_HERE` in `.mcp/research.json` with your API key.
+
+**Playwright** (`BROWSER`): requires Node.js — `npx @playwright/mcp@latest` is fetched on first run.
+
+---
+
+## Local vs shared
+
+| File | Committed | Purpose |
+|------|-----------|---------|
+| `.mcp/*.json` | Yes | Shared team configs — one per mode |
+| `.mcp.json` (root) | No (git-ignored) | Personal local default |

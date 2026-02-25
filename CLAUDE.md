@@ -108,3 +108,46 @@ Use `existsBy*` methods returning `boolean` — never let the DB unique constrai
 | GET `/api/students/{id}` | 200 OK / 404 |
 | PUT `/api/students/{id}` | 200 OK / 404 / 422 |
 | DELETE `/api/students/{id}` | 204 No Content / 404 |
+
+## Spring Boot 4.x Test Conventions
+
+### Test layers
+
+| Layer | Annotation | Spring context |
+|-------|-----------|----------------|
+| Unit | `@ExtendWith(MockitoExtension.class)` | None |
+| Controller | `MockMvcBuilders.standaloneSetup` | None |
+| Repository | `@DataJpaTest` + `@Testcontainers` | JPA slice only |
+| Smoke | `@SpringBootTest` + `@Testcontainers` | Full |
+
+### Breaking changes vs Spring Boot 3.x
+
+- `@WebMvcTest` **removed** → use `MockMvcBuilders.standaloneSetup` + `JacksonJsonHttpMessageConverter(JsonMapper)`
+- `@DataJpaTest` moved to `org.springframework.boot.data.jpa.test.autoconfigure` (add `spring-boot-starter-data-jpa-test` dep)
+- `@AutoConfigureTestDatabase(replace=NONE)` **removed** → use `@DynamicPropertySource`
+- `@MockBean` deprecated → use `@MockitoBean`
+- Jackson 3: package `tools.jackson.*`; configure dates via `DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS`
+- Testcontainers 2.x: `PostgreSQLContainer` has no generic type parameter
+
+### Standard Testcontainers setup
+
+```java
+@DataJpaTest(properties = "spring.jpa.hibernate.ddl-auto=create-drop")
+@Testcontainers
+class FooRepositoryTest {
+
+    @Container
+    static final PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16");
+
+    @DynamicPropertySource
+    static void overrideDataSourceProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+    }
+}
+```
+
+### Test naming
+
+`method_shouldX_whenY` — one assertion focus per test.
