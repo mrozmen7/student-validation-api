@@ -119,6 +119,52 @@ class StudentControllerTest {
                 .andExpect(jsonPath("$.errors.email").exists());
     }
 
+    @Test
+    void postStudents_shouldReturn400WithEmailError_whenEmailIsBlank() throws Exception {
+        String blankEmailRequest = """
+                {
+                    "firstName": "Ali",
+                    "lastName": "Veli",
+                    "birthDate": "2000-01-01",
+                    "email": "",
+                    "tckn": "12345678901"
+                }
+                """;
+
+        mockMvc.perform(post("/api/students")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(blankEmailRequest))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.traceId").exists())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.errors.email").exists())
+                .andExpect(jsonPath("$.errors.firstName").doesNotExist());
+    }
+
+    @Test
+    void postStudents_shouldReturn400WithEmailError_whenEmailFormatIsInvalid() throws Exception {
+        String invalidEmailRequest = """
+                {
+                    "firstName": "Ali",
+                    "lastName": "Veli",
+                    "birthDate": "2000-01-01",
+                    "email": "not-a-valid-email",
+                    "tckn": "12345678901"
+                }
+                """;
+
+        mockMvc.perform(post("/api/students")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidEmailRequest))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.traceId").exists())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.errors.email").exists())
+                .andExpect(jsonPath("$.errors.firstName").doesNotExist());
+    }
+
     // ── GET /api/students/{id} ───────────────────────────────────────────────
 
     @Test
