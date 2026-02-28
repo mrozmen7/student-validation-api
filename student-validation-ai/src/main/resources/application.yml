@@ -1,6 +1,10 @@
 spring:
   application:
     name: student-validation-ai
+  data:
+    web:
+      pageable:
+        max-page-size: 100
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres?currentSchema=student_validation
     username: postgres

@@ -1,15 +1,15 @@
 package com.example.studentvalidation.service;
 
+import com.example.studentvalidation.dto.PagedStudentResponse;
 import com.example.studentvalidation.dto.StudentRequest;
 import com.example.studentvalidation.dto.StudentResponse;
-
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 public interface StudentService {
 
     StudentResponse create(StudentRequest request);
 
-    List<StudentResponse> findAll();
+    PagedStudentResponse findAll(Pageable pageable);
 
     StudentResponse findById(Long id);
 
@@ -17,3 +17,4 @@ public interface StudentService {
 
     void delete(Long id);
 }
+

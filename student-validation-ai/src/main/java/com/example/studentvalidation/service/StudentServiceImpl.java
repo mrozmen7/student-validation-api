@@ -1,6 +1,7 @@
 package com.example.studentvalidation.service;
 
 import com.example.studentvalidation.domain.Student;
+import com.example.studentvalidation.dto.PagedStudentResponse;
 import com.example.studentvalidation.dto.StudentRequest;
 import com.example.studentvalidation.dto.StudentResponse;
 import com.example.studentvalidation.error.BusinessRuleException;
@@ -8,6 +9,8 @@ import com.example.studentvalidation.error.StudentNotFoundException;
 import com.example.studentvalidation.mapper.StudentMapper;
 import com.example.studentvalidation.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,10 +42,20 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<StudentResponse> findAll() {
-        return studentRepository.findAll().stream()
+    public PagedStudentResponse findAll(Pageable pageable) {
+        Page<Student> page = studentRepository.findAll(pageable);
+        List<StudentResponse> content = page.getContent().stream()
                 .map(studentMapper::toResponse)
                 .toList();
+        return PagedStudentResponse.builder()
+                .content(content)
+                .page(page.getNumber())
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .first(page.isFirst())
+                .last(page.isLast())
+                .build();
     }
 
     @Override

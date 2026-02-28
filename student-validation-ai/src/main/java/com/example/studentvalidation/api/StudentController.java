@@ -1,14 +1,15 @@
 package com.example.studentvalidation.api;
 
+import com.example.studentvalidation.dto.PagedStudentResponse;
 import com.example.studentvalidation.dto.StudentRequest;
 import com.example.studentvalidation.dto.StudentResponse;
 import com.example.studentvalidation.service.StudentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/students")
@@ -24,8 +25,8 @@ public class StudentController {
     }
 
     @GetMapping
-    public List<StudentResponse> findAll() {
-        return studentService.findAll();
+    public PagedStudentResponse findAll(@PageableDefault(size = 10) Pageable pageable) {
+        return studentService.findAll(pageable);
     }
 
     @GetMapping("/{id}")
