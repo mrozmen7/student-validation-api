@@ -1,6 +1,7 @@
 package com.example.studentvalidation.service;
 
 import com.example.studentvalidation.domain.Student;
+import com.example.studentvalidation.dto.PagedStudentResponse;
 import com.example.studentvalidation.dto.StudentRequest;
 import com.example.studentvalidation.dto.StudentResponse;
 import com.example.studentvalidation.error.BusinessRuleException;
@@ -12,8 +13,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +38,56 @@ class StudentServiceImplTest {
 
     @InjectMocks
     private StudentServiceImpl studentService;
+
+    // ── findAll ─────────────────────────────────────────────────────────────
+
+    @Test
+    void findAll_shouldReturnPagedResponse_whenPageableProvided() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Student student = new Student();
+        StudentResponse studentResponse = StudentResponse.builder()
+                .id(1L).firstName("Ali").lastName("Veli")
+                .email("ali@example.com").tckn("12345678901")
+                .birthDate(LocalDate.of(2000, 1, 1)).build();
+
+        Page<Student> page = new PageImpl<>(List.of(student), pageable, 1);
+        given(studentRepository.findAll(pageable)).willReturn(page);
+        given(studentMapper.toResponse(student)).willReturn(studentResponse);
+
+        PagedStudentResponse result = studentService.findAll(pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getPage()).isEqualTo(0);
+        assertThat(result.getSize()).isEqualTo(10);
+        assertThat(result.getTotalPages()).isEqualTo(1);
+        assertThat(result.isFirst()).isTrue();
+        assertThat(result.isLast()).isTrue();
+    }
+
+    @Test
+    void findAll_shouldReturnEmptyPage_whenNoStudentsExist() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Student> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+        given(studentRepository.findAll(pageable)).willReturn(emptyPage);
+
+        PagedStudentResponse result = studentService.findAll(pageable);
+
+        assertThat(result.getContent()).isEmpty();
+        assertThat(result.getTotalElements()).isEqualTo(0);
+        assertThat(result.getTotalPages()).isEqualTo(0);
+    }
+
+    @Test
+    void findAll_shouldPassPageableToRepository() {
+        Pageable pageable = PageRequest.of(1, 5);
+        Page<Student> page = new PageImpl<>(List.of(), pageable, 0);
+        given(studentRepository.findAll(pageable)).willReturn(page);
+
+        studentService.findAll(pageable);
+
+        verify(studentRepository).findAll(pageable);
+    }
 
     // ── create ──────────────────────────────────────────────────────────────
 

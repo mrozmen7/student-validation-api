@@ -1,5 +1,6 @@
 package com.example.studentvalidation.api;
 
+import com.example.studentvalidation.dto.PagedStudentResponse;
 import com.example.studentvalidation.dto.StudentResponse;
 import com.example.studentvalidation.error.GlobalExceptionHandler;
 import com.example.studentvalidation.error.StudentNotFoundException;
@@ -10,6 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,8 +21,10 @@ import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -56,6 +61,7 @@ class StudentControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(studentController)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .setMessageConverters(new JacksonJsonHttpMessageConverter(jsonMapper))
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .build();
     }
 
@@ -69,6 +75,62 @@ class StudentControllerTest {
                 "tckn": "12345678901"
             }
             """;
+
+    // ── GET /api/students ────────────────────────────────────────────────────
+
+    @Test
+    void getStudents_shouldReturn200WithPagedResponse_whenDefaultParams() throws Exception {
+        StudentResponse student = StudentResponse.builder()
+                .id(1L).firstName("Ali").lastName("Veli")
+                .email("ali@example.com").tckn("12345678901")
+                .birthDate(LocalDate.of(2000, 1, 1)).build();
+
+        PagedStudentResponse pagedResponse = PagedStudentResponse.builder()
+                .content(List.of(student))
+                .page(0).size(10).totalElements(1).totalPages(1)
+                .first(true).last(true).build();
+
+        given(studentService.findAll(any(Pageable.class))).willReturn(pagedResponse);
+
+        mockMvc.perform(get("/api/students"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.first").value(true))
+                .andExpect(jsonPath("$.last").value(true));
+    }
+
+    @Test
+    void getStudents_shouldReturn200_whenExplicitPageAndSizeGiven() throws Exception {
+        PagedStudentResponse pagedResponse = PagedStudentResponse.builder()
+                .content(List.of())
+                .page(1).size(5).totalElements(0).totalPages(0)
+                .first(true).last(true).build();
+
+        given(studentService.findAll(any(Pageable.class))).willReturn(pagedResponse);
+
+        mockMvc.perform(get("/api/students").param("page", "1").param("size", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").value(1))
+                .andExpect(jsonPath("$.size").value(5));
+    }
+
+    @Test
+    void getStudents_shouldReturn200WithEmptyContent_whenNoStudentsExist() throws Exception {
+        PagedStudentResponse pagedResponse = PagedStudentResponse.builder()
+                .content(List.of())
+                .page(0).size(10).totalElements(0).totalPages(0)
+                .first(true).last(true).build();
+
+        given(studentService.findAll(any(Pageable.class))).willReturn(pagedResponse);
+
+        mockMvc.perform(get("/api/students"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(0)))
+                .andExpect(jsonPath("$.totalElements").value(0));
+    }
 
     // ── POST /api/students ───────────────────────────────────────────────────
 
