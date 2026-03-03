@@ -5,6 +5,7 @@ import com.example.studentvalidation.dto.StudentRequest;
 import com.example.studentvalidation.dto.StudentResponse;
 import org.springframework.data.domain.Pageable;
 
+// email format validasyonu geliştirilecek
 public interface StudentService {
 
     StudentResponse create(StudentRequest request);
