@@ -24,6 +24,7 @@ public class StudentController {
         return studentService.create(request);
     }
 
+    // TODO: pagination eklenecek
     @GetMapping
     public PagedStudentResponse findAll(@PageableDefault(size = 10) Pageable pageable) {
         return studentService.findAll(pageable);
