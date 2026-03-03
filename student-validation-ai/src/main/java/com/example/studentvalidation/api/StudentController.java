@@ -4,12 +4,16 @@ import com.example.studentvalidation.dto.PagedStudentResponse;
 import com.example.studentvalidation.dto.StudentRequest;
 import com.example.studentvalidation.dto.StudentResponse;
 import com.example.studentvalidation.service.StudentService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/students")
@@ -26,17 +30,23 @@ public class StudentController {
 
     // TODO: pagination eklenecek
     @GetMapping
-    public PagedStudentResponse findAll(@PageableDefault(size = 10) Pageable pageable) {
+    public PagedStudentResponse findAll(@PageableDefault(size = 10) Pageable pageable,
+                                        HttpServletResponse response) {
+        response.setHeader("Cache-Control", CacheControl.noCache().getHeaderValue());
         return studentService.findAll(pageable);
     }
 
     @GetMapping("/{id}")
-    public StudentResponse findById(@PathVariable Long id) {
+    public StudentResponse findById(@PathVariable Long id, HttpServletResponse response) {
+        response.setHeader("Cache-Control",
+                CacheControl.maxAge(60, TimeUnit.SECONDS).cachePrivate().getHeaderValue());
         return studentService.findById(id);
     }
 
     @PutMapping("/{id}")
-    public StudentResponse update(@PathVariable Long id, @Valid @RequestBody StudentRequest request) {
+    public StudentResponse update(@PathVariable Long id, @Valid @RequestBody StudentRequest request,
+                                  HttpServletResponse response) {
+        response.setHeader("Cache-Control", CacheControl.noStore().getHeaderValue());
         return studentService.update(id, request);
     }
 

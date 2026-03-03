@@ -94,6 +94,7 @@ class StudentControllerTest {
 
         mockMvc.perform(get("/api/students"))
                 .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", "no-cache"))
                 .andExpect(jsonPath("$.content", hasSize(1)))
                 .andExpect(jsonPath("$.page").value(0))
                 .andExpect(jsonPath("$.size").value(10))
@@ -113,6 +114,7 @@ class StudentControllerTest {
 
         mockMvc.perform(get("/api/students").param("page", "1").param("size", "5"))
                 .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", "no-cache"))
                 .andExpect(jsonPath("$.page").value(1))
                 .andExpect(jsonPath("$.size").value(5));
     }
@@ -128,6 +130,7 @@ class StudentControllerTest {
 
         mockMvc.perform(get("/api/students"))
                 .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", "no-cache"))
                 .andExpect(jsonPath("$.content", hasSize(0)))
                 .andExpect(jsonPath("$.totalElements").value(0));
     }
@@ -198,6 +201,7 @@ class StudentControllerTest {
 
         mockMvc.perform(get("/api/students/1"))
                 .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", "max-age=60, private"))
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.firstName").value("Ali"))
                 .andExpect(jsonPath("$.email").value("ali@example.com"))
